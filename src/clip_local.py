@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from PIL import Image
 
 MODEL_NAME = "ViT-B-32"
 PRETRAINED = "laion2b_s34b_b79k"
@@ -27,7 +28,7 @@ def _l2(x: torch.Tensor) -> torch.Tensor:
 
 
 class LocalCLIP:
-    """Encode query texts only. Do not re-embed the clip_vectors.npy library."""
+    """Encode query texts, or stills when building an index. No cloud vision API."""
 
     def __init__(self, offline: bool | None = None, cache_dir: str | Path | None = None):
         cache = resolve_cache_dir(cache_dir)
@@ -56,6 +57,20 @@ class LocalCLIP:
         self.tokenizer = open_clip.get_tokenizer(MODEL_NAME)
         visual = getattr(self.model, "visual", None)
         self.dim = int(getattr(visual, "output_dim", 512) or 512)
+
+    def encode_images(self, paths: list[Path], batch: int = 16) -> np.ndarray:
+        vecs: list[np.ndarray] = []
+        with torch.no_grad():
+            for i in range(0, len(paths), batch):
+                chunk = paths[i : i + batch]
+                tensors = []
+                for pth in chunk:
+                    im = Image.open(pth).convert("RGB")
+                    tensors.append(self.preprocess(im))
+                x = torch.stack(tensors, dim=0).to(DEVICE)
+                feat = _l2(self.model.encode_image(x))
+                vecs.append(feat.cpu().numpy().astype(np.float32))
+        return np.concatenate(vecs, axis=0) if vecs else np.zeros((0, self.dim), dtype=np.float32)
 
     def encode_texts(self, texts: list[str]) -> np.ndarray:
         if not texts:

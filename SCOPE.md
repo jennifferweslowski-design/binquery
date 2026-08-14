@@ -12,7 +12,7 @@
    - `clip_noun+no_person`：CLIP 名詞先找岩／雅丹，再硬濾 `person_clip < 0`。
    - `clip_noun+soft_person+fire_neg`：CLIP 名詞找孤月／石縫，`person_clip` 軟罰，火光負向壓 0308。
 5. 大海道類查詢排除 0304／0305。
-6. 介面：`binquery query --index <box> "<intent>"`。只編碼查詢句，不重抽幀、不重算整庫向量。
+6. 介面：`binquery index --input <videos> --index <box>` 建盒；`query` 只編碼查詢句。
 
 ## 不進 v0
 

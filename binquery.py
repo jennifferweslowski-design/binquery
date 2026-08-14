@@ -9,6 +9,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "src"))
 
+from index_box import IndexError_, run_index  # noqa: E402
 from intents import SPECS  # noqa: E402
 from query import (  # noqa: E402
     LIMIT_DEFAULT,
@@ -27,6 +28,21 @@ def cmd_list(_args: argparse.Namespace) -> int:
         aliases = ", ".join(spec.get("aliases") or [])
         print(f"{spec['slug']:<34} {spec['gate']:<32} {aliases}")
         print(f"  {spec['intent']}")
+    return 0
+
+
+def cmd_index(args: argparse.Namespace) -> int:
+    try:
+        report = run_index(Path(args.input).expanduser(), Path(args.index).expanduser())
+    except IndexError_ as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    print(
+        f"indexed {report['clip_count']} clips / {report['frame_count']} stills "
+        f"shape={tuple(report['shape'])} -> {report['box']}"
+    )
+    for w in report["wrote"]:
+        print(f"  wrote {w}")
     return 0
 
 
@@ -60,7 +76,7 @@ def cmd_query(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="binquery",
-        description="Local CLIP shortlist over an existing train-ground or sea-road-ground index.",
+        description="Local CLIP shortlist. Build a box with index, then doctor/query.",
     )
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -77,6 +93,11 @@ def build_parser() -> argparse.ArgumentParser:
     dd = sub.add_parser("doctor", help="check index files; exit 2 if query cannot run")
     dd.add_argument("--index", required=True, help="box root containing index/")
     dd.set_defaults(func=cmd_doctor)
+
+    ix = sub.add_parser("index", help="build index/ from a local video folder")
+    ix.add_argument("--input", required=True, help="folder of videos (mov/mp4/mkv/...)")
+    ix.add_argument("--index", required=True, help="box root to write index/ into")
+    ix.set_defaults(func=cmd_index)
     return p
 
 
