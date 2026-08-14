@@ -2,3 +2,4 @@ open_clip_torch
 torch
 numpy
 pillow
+opencv-python-headless

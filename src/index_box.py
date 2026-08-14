@@ -15,6 +15,7 @@ from typing import Any
 import numpy as np
 
 from clip_local import DEVICE, MODEL_NAME, PRETRAINED, LocalCLIP
+from motion_local import clip_motion_row
 
 TZ8 = timezone(timedelta(hours=8))
 VIDEO_EXT = {".mov", ".mp4", ".mkv", ".m4v", ".avi", ".webm"}
@@ -265,6 +266,45 @@ def run_index(input_dir: Path, box_dir: Path) -> dict[str, Any]:
     (index_dir / "clip.json").write_text(
         json.dumps(clip_json, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
+    person_by = {r["filename"]: r.get("person_clip") for r in person_rows}
+    frames_by: dict[str, list[Path]] = {}
+    for row, dest in zip(frame_rows, frame_paths):
+        frames_by.setdefault(str(row["filename"]), []).append(dest)
+    motion_clips = []
+    for rec in clips:
+        fn = rec["filename"]
+        motion_clips.append(
+            clip_motion_row(
+                fn,
+                rec.get("folder") or "",
+                float(rec["duration_sec"]),
+                frames_by.get(fn) or [],
+                person_by.get(fn),
+            )
+        )
+    motion_payload = {
+        "generated_at": generated,
+        "clip_count": len(motion_clips),
+        "model": MODEL_NAME,
+        "pretrained": PRETRAINED,
+        "device": DEVICE,
+        "working_resolution": "long_edge_320",
+        "still_px": 3.0,
+        "fields": {
+            "filename": "relative path under the input folder",
+            "coarse_3frame": "a→b and b→c on index/frames. fd_mag + phaseCorrelate. lock / pan_candidate / handheld_candidate.",
+            "dense": "same a/b/c stills. mag / horiz_ratio / dir_consistency / shake.",
+            "person_clip": "copied from empty_hard.json (cos person - cos empty).",
+            "motion_label": "lock | pan | handheld | moving | unknown",
+        },
+        "note": "Written by binquery index. Same motion.json fields. Not a new format. Not a pass.",
+        "clips": motion_clips,
+    }
+    (index_dir / "motion.json").write_text(
+        json.dumps(motion_payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
     return {
         "box": str(box_dir),
         "input": str(input_dir),
@@ -276,6 +316,8 @@ def run_index(input_dir: Path, box_dir: Path) -> dict[str, Any]:
             "index/clip.json",
             "index/clip_vectors.npy",
             "index/empty_hard.json",
+            "index/motion.json",
         ],
         "person_clips": person_rows,
+        "motion_labels": {c["filename"]: c["motion_label"] for c in motion_clips},
     }

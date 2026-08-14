@@ -15,6 +15,7 @@ dependencies = [
   "torch",
   "numpy",
   "pillow",
+  "opencv-python-headless",
 ]
 
 [project.scripts]
@@ -25,4 +26,4 @@ Homepage = "https://github.com/jennifferweslowski-design/binquery"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-py-modules = ["cli", "clip_local", "index_box", "intents", "query"]
+py-modules = ["cli", "clip_local", "index_box", "intents", "motion_local", "query"]
