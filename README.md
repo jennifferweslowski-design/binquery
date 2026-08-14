@@ -54,9 +54,10 @@ export BINQUERY_INDEX=./my-box
 - `index/clip.json`
 - `index/clip_vectors.npy`
 - `index/mechanical.json`
+- `index/empty_hard.json`（`person_clip`：每條 max(cos 人 − cos 空)，空鏡 gate 直接讀。不必自己加 json。）
 
 3. 先 `doctor`，再 `query`。MISS 就停。
-4. 要跑空鏡 gate 再自己加 `empty_hard.json` 或 `motion.json`（這輪 `index` 不寫 person／motion）。沒有的話 pictorial 仍可查。
+4. pictorial 不需要 person。空鏡 gate 用剛寫的 `person_clip`。motion 這輪不寫。
 5. `.mov`、幀、向量留在盒裡。本倉庫只放程式和說明。`.gitignore` 已擋 `__pycache__`、`.venv`、`*.npy`、`*.mov`、`index/`。
 
 ## 例子

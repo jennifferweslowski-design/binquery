@@ -111,6 +111,36 @@ def extract_one(ffmpeg: str, src: Path, t: float, dest: Path) -> None:
     raise IndexError_(f"frame extract failed {src.name} @{t}: {err[-1] if err else 'ffmpeg failed'}")
 
 
+PERSON_TXT = "a person visible in the frame"
+EMPTY_TXT = "empty landscape, no people"
+
+
+def person_clip_rows(
+    model: LocalCLIP,
+    vecs: np.ndarray,
+    frame_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """person_clip = max over frames of cos(person) - cos(empty). Same field empty gates read."""
+    tvecs = model.encode_texts([PERSON_TXT, EMPTY_TXT])
+    person_v, empty_v = tvecs[0], tvecs[1]
+    deltas = (vecs @ person_v) - (vecs @ empty_v)
+    by: dict[str, dict[str, Any]] = {}
+    for i, row in enumerate(frame_rows):
+        fn = str(row["filename"])
+        d = float(deltas[i])
+        rec = by.get(fn)
+        if rec is None or d > rec["person_clip"]:
+            by[fn] = {
+                "path": fn,
+                "filename": fn,
+                "person_clip": round(d, 4),
+                "duration_sec": row.get("duration_sec"),
+                "best_frame": row.get("frame"),
+                "best_time_sec": row.get("time_sec"),
+            }
+    return [by[k] for k in sorted(by)]
+
+
 def run_index(input_dir: Path, box_dir: Path) -> dict[str, Any]:
     input_dir = Path(input_dir).expanduser().resolve()
     box_dir = Path(box_dir).expanduser().resolve()
@@ -174,7 +204,34 @@ def run_index(input_dir: Path, box_dir: Path) -> dict[str, Any]:
     npy_path = index_dir / "clip_vectors.npy"
     np.save(npy_path, vecs)
 
+    person_rows = person_clip_rows(clip, vecs, frame_rows)
     generated = now_iso()
+    hard = {
+        "generated_at": generated,
+        "model": MODEL_NAME,
+        "pretrained": PRETRAINED,
+        "device": DEVICE,
+        "person_prompts": {
+            "person": PERSON_TXT,
+            "empty": EMPTY_TXT,
+        },
+        "fields": {
+            "person_clip": (
+                "max over stored frame vectors of "
+                "cosine(a person visible in the frame) - "
+                "cosine(empty landscape, no people). "
+                "Low/negative = no people."
+            ),
+            "path": "relative path under the input folder",
+        },
+        "clip_count": len(person_rows),
+        "clips": person_rows,
+        "note": "Written by binquery index. Same person_clip field empty gates already read. Not motion.",
+    }
+    (index_dir / "empty_hard.json").write_text(
+        json.dumps(hard, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
     mech = {
         "generated_at": generated,
         "count": len(clips),
@@ -218,5 +275,7 @@ def run_index(input_dir: Path, box_dir: Path) -> dict[str, Any]:
             "index/mechanical.json",
             "index/clip.json",
             "index/clip_vectors.npy",
+            "index/empty_hard.json",
         ],
+        "person_clips": person_rows,
     }
