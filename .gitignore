@@ -7,3 +7,4 @@ index/
 .cache/
 *.jpg
 thumbs/
+*.egg-info/

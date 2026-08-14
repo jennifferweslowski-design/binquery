@@ -1,0 +1,21 @@
+name: 文檔
+description: README／CONTRIBUTING 不清楚
+title: "[docs] "
+labels: ["documentation"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: 哪一頁
+      placeholder: README.md
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 哪段不清楚、想改成什麼
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: 不要貼影片、npy、index 或素材。

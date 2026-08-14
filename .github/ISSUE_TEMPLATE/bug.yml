@@ -1,0 +1,27 @@
+name: Bug
+description: 指令壞了或結果不對
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: cmd
+    attributes:
+      label: 哪條指令
+      placeholder: binquery doctor --index ./my-box
+    validations:
+      required: true
+  - type: textarea
+    id: expect
+    attributes:
+      label: 期望
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 實際（含 doctor 出口碼）
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: 不要貼影片、npy、index 或素材。相對檔名可以。

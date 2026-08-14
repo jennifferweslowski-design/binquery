@@ -8,8 +8,10 @@
 
 ```
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -e .
 ```
+
+也可以 `pip install -r requirements.txt` 再跑 `./binquery`。
 
 還要本機有 `ffmpeg` / `ffprobe`。
 
@@ -71,3 +73,5 @@ export BINQUERY_INDEX=./my-box
 ## 禁止
 
 雲端視覺查詢 API、unpack 素材進本倉庫、把影片或 index 向量提交上來。
+
+怎麼提 issue／PR 見 [CONTRIBUTING.md](CONTRIBUTING.md)。

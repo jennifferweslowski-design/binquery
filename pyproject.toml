@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binquery"
+version = "0.1.0"
+description = "Local CLI: index a video folder and shortlist clips by editing intent."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "Dylan Xu" }]
+dependencies = [
+  "open_clip_torch",
+  "torch",
+  "numpy",
+  "pillow",
+]
+
+[project.scripts]
+binquery = "cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jennifferweslowski-design/binquery"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["cli", "clip_local", "index_box", "intents", "query"]
