@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# binquery v0 wrapper. Prefer a local venv. CPU only.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+
+if [ -n "${BINQUERY_PYTHON:-}" ]; then
+  PY="$BINQUERY_PYTHON"
+elif [ -x "$ROOT/.venv/bin/python" ]; then
+  PY="$ROOT/.venv/bin/python"
+else
+  PY=python3
+fi
+
+if [ "${BINQUERY_OFFLINE:-}" = "1" ]; then
+  export HF_HUB_OFFLINE=1
+  export TRANSFORMERS_OFFLINE=1
+fi
+
+exec "$PY" "$ROOT/binquery.py" "$@"
