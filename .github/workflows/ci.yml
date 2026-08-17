@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  index-doctor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+
+      - name: Install binquery (CPU torch)
+        run: |
+          python -m pip install -U pip
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e .
+          pip install --force-reinstall --no-deps torchvision --index-url https://download.pytorch.org/whl/cpu
+
+      - name: lavfi index then doctor
+        env:
+          BINQUERY_CLIP_CACHE: ${{ runner.temp }}/clip-cache
+        run: |
+          set -euo pipefail
+          SRC="${RUNNER_TEMP}/bq-src"
+          BOX="${RUNNER_TEMP}/bq-box"
+          mkdir -p "$SRC"
+          ffmpeg -y -hide_banner -loglevel error -f lavfi -i color=c=blue:s=320x240:d=2:r=24 -pix_fmt yuv420p "$SRC/a.mp4"
+          ffmpeg -y -hide_banner -loglevel error -f lavfi -i testsrc=size=320x240:rate=24:duration=2 -pix_fmt yuv420p "$SRC/b.mp4"
+          ffmpeg -y -hide_banner -loglevel error -f lavfi -i testsrc2=size=320x240:rate=24:duration=2.5 -pix_fmt yuv420p "$SRC/c.mp4"
+          binquery index --input "$SRC" --index "$BOX"
+          binquery doctor --index "$BOX"

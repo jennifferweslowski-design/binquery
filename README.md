@@ -76,4 +76,8 @@ export BINQUERY_INDEX=./my-box
 
 雲端視覺查詢 API、unpack 素材進本倉庫、把影片或 index 向量提交上來。
 
+## CI
+
+推 `main` 或開 PR 時，[ci](.github/workflows/ci.yml) 在官方 runner 上 lavfi 自製 3 條短片，跑 `index` → `doctor`。素材和 index 只活在 runner，不進倉庫。
+
 怎麼提 issue／PR 見 [CONTRIBUTING.md](CONTRIBUTING.md)。
