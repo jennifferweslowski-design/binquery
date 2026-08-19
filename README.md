@@ -36,6 +36,8 @@ npx -y skills add jennifferweslowski-design/binquery
 
 這只裝給 agent 的說明，不會裝 Python 套件。CLI 仍要 clone 後 `pip install -e .`。不在 PyPI，不要寫 `pip install binquery`。
 
+場次很多、或預告要從自己的 rushes／dailies 找鏡頭：Skill 裡有未對上凍結句的示例意圖（一場一句，或一句預告意圖）。`query` 回 8–15 條短名單；查詢順序當作用戶的場次記憶。不是 Premiere、不是自動成片、沒有對真 bin 跑過。
+
 ## 用法
 
 ```
@@ -49,9 +51,11 @@ export BINQUERY_INDEX=./my-box
 
 `--input` 是你自己的影片資料夾。`--index` 是盒根（會寫入 `index/`）。limit 預設 12，夾在 8–15。
 
-`query` 用一句 pictorial 意圖回 8–15 條短名單。CLIP 看靜幀，長得像的會排在一起（例如白天岩縫透天，分數可以像月亮）。長片仍可能排高；時長是加分，不是硬切。人還是要看。這是短名單，不是自動剪輯。
+`query` 用一句 pictorial 意圖回 8–15 條短名單。CLIP 看靜幀，長得像的會排在一起（例如白天岩縫透天，分數可以像月亮）。長片仍可能排高；時長是加分，不是硬切。人還是要看。這是短名單，不是自動剪輯。未對上凍結導演句也當 pictorial 跑，不必改 `src/intents.py`。
 
-`doctor` 只檢查檔在不在、能不能讀。缺必備 index 就列檔名、exit 2，不假裝能查、不解包。
+多場次就一場一句 `query`，查詢順序留給用戶當場次記憶（盒不會從檔案還原 Premiere 順序）。預告從 rushes 找鏡頭：對自己的 rushes 資料夾 `index`，再丟一句預告意圖。都不是貼進時間軸、也不是自動剪預告。
+
+`doctor` 只檢查檔在不在、能不能讀。缺必備 index 就列檔名、exit 2，不假裝能查、不解包。真演示要本機影片資料夾先 index 成盒（`BINQUERY_INDEX`）。CI 的 lavfi 3 條只跑 `index` → `doctor`，不是 rushes／場次序列演示。沒有對過約 500 條真 bin。沒盒就說：需要本機影片資料夾先 index 成盒，才能演示。不要假裝對過真 bin。
 
 ## 自備盒
 
@@ -86,12 +90,23 @@ export BINQUERY_INDEX=./my-box
 
 凍結分數見 [test-run.md](test-run.md)（相對檔名，不含素材）。
 
+未對上凍結句的場次名／預告意圖也可以直接丟給 `query`（pictorial；不是實跑真 bin）：
+
+```
+./binquery query --index "$BINQUERY_INDEX" "scene 2 empty hallway lock-off"
+./binquery query --index "$BINQUERY_INDEX" "第三場：傍晚空街遠景"
+./binquery query --index "$BINQUERY_INDEX" "cold open wide empty night"
+./binquery query --index "$BINQUERY_INDEX" "close-up reaction pause"
+```
+
+真演示要本機盒。CI lavfi 不是這個演示。
+
 ## 禁止
 
 雲端視覺查詢 API、unpack 素材進本倉庫、把影片或 index 向量提交上來。
 
 ## CI
 
-推 `main` 或開 PR 時，[ci](.github/workflows/ci.yml) 在官方 runner 上 lavfi 自製 3 條短片，跑 `index` → `doctor`。素材和 index 只活在 runner，不進倉庫。
+推 `main` 或開 PR 時，[ci](.github/workflows/ci.yml) 在官方 runner 上 lavfi 自製 3 條短片，跑 `index` → `doctor`。素材和 index 只活在 runner，不進倉庫。那不是 rushes／場次序列演示；真演示要用戶本機影片資料夾先建盒。
 
 怎麼提 issue／PR 見 [CONTRIBUTING.md](CONTRIBUTING.md)。

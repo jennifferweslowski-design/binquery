@@ -13,10 +13,17 @@ Local CLIP shortlist CLI. Index a video folder the user already has, then query 
 
 Use this skill when the user wants a **local footage shortlist from an edit intent**, or asks to run `binquery` `index` / `doctor` / `query` / `list`.
 
+That includes **this kind of ask** (public editor talk; not a claim we ran it):
+
+- Many separately-cut scenes headed for a Premiere master, and the original scene order is getting lost. For each scene, pass **one** visual-intent sentence to `query`. Keep the **query order** as the user's sequence memory. Humans still watch. binquery does not paste into Premiere, assemble a timeline, restore NLE markers, or read original sequence from the media files. (r/VideoEditing, 2026-08-16: [How can I paste a lot of scenes in the master](https://www.reddit.com/r/VideoEditing/comments/1vppcap/how_can_i_paste_a_lot_of_scenes_in_the_master/))
+- Trailer work from the user's own rushes/dailies folder, not a locked master. Index that folder, then one trailer-intent sentence → 8–15 clip shortlist. This is not an auto-cut trailer, and we have not run this on a real rushes bin. (r/editors, 2026-08-16: [Do trailer editors typically work from raw rushes](https://www.reddit.com/r/editors/comments/1vq6rbv/do_trailer_editors_typically_work_from_raw_rushes/))
+
 Do not use this skill to:
 
 - browse or stream video
 - auto-edit, assemble a timeline, or export a finished piece
+- paste into Premiere, restore NLE markers, or recover scene order from the files
+- auto-cut a trailer
 - call a cloud vision / video API
 - re-extract frames or re-embed the library on query
 - install from PyPI (`pip install binquery` is wrong)
@@ -72,7 +79,7 @@ export BINQUERY_INDEX=./my-box
 
 `--input` is the user's video folder (`.mov` / `.mp4` / `.mkv` / `.m4v` / `.avi` / `.webm`). `--index` is the box root (writes `index/` under it). `--limit` defaults to 12 and is clamped to 8–15.
 
-Example from the project README:
+Example from the project README (frozen director alias; `list` has the rest):
 
 ```
 export BINQUERY_INDEX=./my-box
@@ -80,6 +87,52 @@ export BINQUERY_INDEX=./my-box
 ./binquery doctor --index "$BINQUERY_INDEX"
 ./binquery query --index "$BINQUERY_INDEX" "工人與車" --limit 12
 ```
+
+Unknown sentences still run as unmatched pictorial (`resolve_query`). Do not rewrite the frozen Chinese director lines in `src/intents.py`. Do not add SPECS.
+
+## Example intents
+
+Pass **one unmatched pictorial sentence** per `query`. These are generic examples for an agent to type — not frozen director lines, not golds, not a claim we ranked a real bin.
+
+Scene-sequence style (scene name or one-line visual per scene; Chinese or English):
+
+```
+./binquery query --index "$BINQUERY_INDEX" "scene 2 empty hallway lock-off"
+./binquery query --index "$BINQUERY_INDEX" "kitchen table medium two people"
+./binquery query --index "$BINQUERY_INDEX" "第三場：傍晚空街遠景"
+```
+
+Rushes / trailer style (one intent → shortlist from the user's own rushes folder):
+
+```
+./binquery query --index "$BINQUERY_INDEX" "cold open wide empty night"
+./binquery query --index "$BINQUERY_INDEX" "close-up reaction pause"
+./binquery query --index "$BINQUERY_INDEX" "locked-off receding wide"
+```
+
+Each call returns 8–15 rows: `path`, `score`, `gate`, `reasons`. CLIP ranks stills that look alike. Humans still watch.
+
+## When the user has many scenes / rushes
+
+1. Videos stay in the user's own folder. Do not copy footage into this repo.
+2. `index` that folder into a box, then `doctor`. If a required file is `MISS`, **stop**.
+3. One `query` per scene (scene-sequence), or one trailer-intent sentence (rushes).
+4. Show each shortlist. Keep the **query order** as the user's sequence memory. The box does not remember Premiere order.
+5. The user watches. Do not assemble a timeline.
+
+This is not Premiere, not auto-edit, and not a 500-clip run.
+
+## What we have not done
+
+We have **not** run `query` against a ~500-clip real bin for these two asks.
+
+CI only builds 3 lavfi clips and runs `index` → `doctor`. That is not a rushes or scene-sequence demo.
+
+A real demo needs the user's local video folder plus a local box (`BINQUERY_INDEX`). If they have no box, say exactly:
+
+需要本機影片資料夾先 index 成盒，才能演示。不要假裝對過真 bin。
+
+Do not invent star counts, downloads, user counts, or screenshots. Do not claim we pasted into Premiere or auto-cut a trailer.
 
 ## Commands
 
