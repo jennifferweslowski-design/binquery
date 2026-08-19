@@ -2,15 +2,17 @@
 
 Not highlight detection. Not silence cuts. Does not index or query.
 Does not unpack archives. Does not call a cloud API.
+Stdlib + local ffmpeg only; does not import OpenCLIP.
 """
 from __future__ import annotations
 
+import json
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Any
 
-from index_box import VIDEO_EXT, IndexError_, probe_clip, which_ffmpeg
-
+VIDEO_EXT = {".mov", ".mp4", ".mkv", ".m4v", ".avi", ".webm"}
 SECONDS_DEFAULT = 8
 SECONDS_MIN = 4
 SECONDS_MAX = 60
@@ -51,6 +53,37 @@ def reject_program_tree(out: Path) -> None:
             f"refusing to write clips into the program tree ({root}). "
             "Pass --out outside this repo, or keep the default next to the input file."
         )
+
+
+def which_ffmpeg() -> tuple[str, str]:
+    ff = shutil.which("ffmpeg")
+    fp = shutil.which("ffprobe")
+    if not ff or not fp:
+        raise SplitError("ffmpeg/ffprobe not on PATH. Will not unpack or call a cloud API.")
+    return ff, fp
+
+
+def probe_clip(ffprobe: str, src: Path) -> dict[str, Any]:
+    cmd = [
+        ffprobe, "-v", "error",
+        "-select_streams", "v:0",
+        "-show_entries", "stream=width,height:format=duration,size",
+        "-of", "json",
+        str(src),
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SplitError(f"ffprobe failed: {src.name}: {(r.stderr or '').strip()[:200]}")
+    data = json.loads(r.stdout or "{}")
+    fmt = data.get("format") or {}
+    streams = data.get("streams") or [{}]
+    st = streams[0] if streams else {}
+    dur = float(fmt.get("duration") or 0.0)
+    return {
+        "duration_sec": dur,
+        "width": int(st.get("width") or 0),
+        "height": int(st.get("height") or 0),
+    }
 
 
 def _has_audio(ffprobe: str, src: Path) -> bool:
@@ -96,16 +129,16 @@ def run_split(
     else:
         out.mkdir(parents=True, exist_ok=True)
 
-    try:
-        ffmpeg, ffprobe = which_ffmpeg()
-    except IndexError_ as e:
-        raise SplitError(str(e)) from e
+    ffmpeg, ffprobe = which_ffmpeg()
 
     suffix = ".mp4" if reencode else src.suffix
     pattern = out / f"part%03d{suffix}"
     cmd = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-i", str(src)]
     if reencode:
-        cmd += ["-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p"]
+        cmd += [
+            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+            "-force_key_frames", f"expr:gte(t,n_forced*{seconds})",
+        ]
         if _has_audio(ffprobe, src):
             cmd += ["-c:a", "aac"]
         else:
