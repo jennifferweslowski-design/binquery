@@ -21,6 +21,12 @@ from query import (  # noqa: E402
     print_table,
     run_query,
 )
+from split_local import (  # noqa: E402
+    SECONDS_DEFAULT,
+    SplitError,
+    default_out_dir,
+    run_split,
+)
 
 
 def cmd_list(_args: argparse.Namespace) -> int:
@@ -29,6 +35,24 @@ def cmd_list(_args: argparse.Namespace) -> int:
         aliases = ", ".join(spec.get("aliases") or [])
         print(f"{spec['slug']:<34} {spec['gate']:<32} {aliases}")
         print(f"  {spec['intent']}")
+    return 0
+
+
+def cmd_split(args: argparse.Namespace) -> int:
+    src = Path(args.input).expanduser()
+    out = Path(args.out).expanduser() if args.out else default_out_dir(src)
+    try:
+        report = run_split(src, out, seconds=args.seconds, reencode=args.reencode)
+    except (SplitError, IndexError_) as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    print(
+        f"split {report['clip_count']} clips -> {report['out']} "
+        f"({report['mode']}, segment_time={report['seconds']})"
+    )
+    print(report["note"])
+    for c in report["clips"]:
+        print(f"  {c['path']}  {c['duration_sec']:.3f}s")
     return 0
 
 
@@ -77,9 +101,35 @@ def cmd_query(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="binquery",
-        description="Local CLIP shortlist. Build a box with index, then doctor/query.",
+        description="Local CLIP shortlist. Optional time-grid split, then index, then doctor/query.",
     )
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    sp = sub.add_parser(
+        "split",
+        help="time-grid split one local video into a folder (ffmpeg segment; not highlights)",
+    )
+    sp.add_argument("--input", required=True, help="one local video file (the long take)")
+    sp.add_argument(
+        "--out",
+        default=None,
+        help="empty or new folder for clips (default: <input-dir>/split-out; never the program tree)",
+    )
+    sp.add_argument(
+        "--seconds",
+        type=int,
+        default=SECONDS_DEFAULT,
+        help=(
+            "target clip length (default 8, clamped 4-60). "
+            "Default -c copy cuts on keyframes, so duration is not exact."
+        ),
+    )
+    sp.add_argument(
+        "--reencode",
+        action="store_true",
+        help="reencode libx264+aac for nearer-exact duration (local ffmpeg only)",
+    )
+    sp.set_defaults(func=cmd_split)
 
     qq = sub.add_parser("query", help="shortlist 8-15 clips for an intent")
     qq.add_argument("--index", required=True, help="box root containing index/")
