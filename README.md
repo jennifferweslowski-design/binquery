@@ -24,6 +24,18 @@ CPU。模型是 OpenCLIP ViT-B-32 / `laion2b_s34b_b79k`。權重快取：
 
 Python 順序：`$BINQUERY_PYTHON` → `./.venv/bin/python` → `python3`。
 
+## Agent Skill
+
+給 agent 用：一句剪輯意圖 → 本機短名單。裝這個倉庫的 Skill：
+
+```
+npx -y skills add jennifferweslowski-design/binquery
+```
+
+或把 `skills/binquery/` 拷進專案的 `.agents/skills/binquery` 或 `.claude/skills/binquery`（夾裡要有 `SKILL.md`）。
+
+這只裝給 agent 的說明，不會裝 Python 套件。CLI 仍要 clone 後 `pip install -e .`。不在 PyPI，不要寫 `pip install binquery`。
+
 ## 用法
 
 ```
