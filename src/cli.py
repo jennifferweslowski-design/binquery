@@ -10,16 +10,12 @@ _SRC = Path(__file__).resolve().parent
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from index_box import IndexError_, run_index  # noqa: E402
 from intents import SPECS  # noqa: E402
-from query import (  # noqa: E402
-    LIMIT_DEFAULT,
-    MissingIndex,
-    doctor_index,
-    dump_json,
-    print_doctor,
-    print_table,
-    run_query,
+from split_local import (  # noqa: E402
+    SECONDS_DEFAULT,
+    SplitError,
+    default_out_dir,
+    run_split,
 )
 
 
@@ -32,7 +28,27 @@ def cmd_list(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_split(args: argparse.Namespace) -> int:
+    src = Path(args.input).expanduser()
+    out = Path(args.out).expanduser() if args.out else default_out_dir(src)
+    try:
+        report = run_split(src, out, seconds=args.seconds, reencode=args.reencode)
+    except SplitError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    print(
+        f"split {report['clip_count']} clips -> {report['out']} "
+        f"({report['mode']}, segment_time={report['seconds']})"
+    )
+    print(report["note"])
+    for c in report["clips"]:
+        print(f"  {c['path']}  {c['duration_sec']:.3f}s")
+    return 0
+
+
 def cmd_index(args: argparse.Namespace) -> int:
+    from index_box import IndexError_, run_index
+
     try:
         report = run_index(Path(args.input).expanduser(), Path(args.index).expanduser())
     except IndexError_ as e:
@@ -48,12 +64,16 @@ def cmd_index(args: argparse.Namespace) -> int:
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
+    from query import doctor_index, print_doctor
+
     report = doctor_index(Path(args.index).expanduser())
     print_doctor(report)
     return 0 if report["can_query"] else 2
 
 
 def cmd_query(args: argparse.Namespace) -> int:
+    from query import MissingIndex, dump_json, print_table, run_query
+
     box = Path(args.index).expanduser()
     try:
         payload = run_query(box, args.intent, limit=args.limit)
@@ -77,14 +97,40 @@ def cmd_query(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="binquery",
-        description="Local CLIP shortlist. Build a box with index, then doctor/query.",
+        description="Local CLIP shortlist. Optional time-grid split, then index, then doctor/query.",
     )
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    sp = sub.add_parser(
+        "split",
+        help="time-grid split one local video into a folder (ffmpeg segment; not highlights)",
+    )
+    sp.add_argument("--input", required=True, help="one local video file (the long take)")
+    sp.add_argument(
+        "--out",
+        default=None,
+        help="empty or new folder for clips (default: <input-dir>/split-out; never the program tree)",
+    )
+    sp.add_argument(
+        "--seconds",
+        type=int,
+        default=SECONDS_DEFAULT,
+        help=(
+            "target clip length (default 8, clamped 4-60). "
+            "Default -c copy cuts on keyframes, so duration is not exact."
+        ),
+    )
+    sp.add_argument(
+        "--reencode",
+        action="store_true",
+        help="reencode libx264+aac for nearer-exact duration (local ffmpeg only)",
+    )
+    sp.set_defaults(func=cmd_split)
 
     qq = sub.add_parser("query", help="shortlist 8-15 clips for an intent")
     qq.add_argument("--index", required=True, help="box root containing index/")
     qq.add_argument("intent", help="intent phrase, e.g. 工人與車")
-    qq.add_argument("--limit", type=int, default=LIMIT_DEFAULT, help="clamped 8-15, default 12")
+    qq.add_argument("--limit", type=int, default=12, help="clamped 8-15, default 12")
     qq.add_argument("--out", default=None, help="JSON path (default <index>/queries/cli-<slug>.json)")
     qq.set_defaults(func=cmd_query)
 

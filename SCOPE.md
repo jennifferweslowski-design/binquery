@@ -13,10 +13,11 @@
    - `clip_noun+soft_person+fire_neg`：CLIP 名詞找孤月／石縫，`person_clip` 軟罰，火光負向壓 0308。
 5. 大海道類查詢排除 0304／0305。
 6. 介面：`binquery index --input <videos> --index <box>` 建盒；`query` 只編碼查詢句。
+7. 可選：`binquery split` 用本機 ffmpeg 把一條長片切成時間格 clips（預設 `-c copy` segment，切在 keyframe）。不是 highlight、不是依靜音切、不是自動成片。
 
 ## 不進 v0
 
-重抽幀、重算整庫 embedding、新雲端視覺 API、素材進倉庫、改導演句、當過關、NLE、美學分、口播轉寫、時間軸、GUI。
+重抽幀、重算整庫 embedding、新雲端視覺 API、素材進倉庫、改導演句、當過關、NLE、美學分、口播轉寫、時間軸、GUI、highlight 偵測、YouTube/TikTok 自動 clip。
 
 ## 完成標準
 
