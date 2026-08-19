@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="290" viewBox="0 0 920 290" role="img">
+<title>binquery shortlist: wide dark water rain</title>
+<rect width="920" height="290" fill="#111111"/>
+<text x="18" y="32" fill="#8a8a8a" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">10 local self-made clips. Not a ~500-clip bin. Not lavfi. Scores are a shortlist, not a pass.</text>
+<text x="18" y="58" fill="#e8e8e8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">wide dark water rain  slug=unmatched  gate=pictorial  n=8  model=ViT-B-32 cpu</text>
+<text x="18" y="80" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 1  grok-phoenix-v2-take2-source.mp4       6.04s  score=0.2240</text>
+<text x="18" y="102" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 2  phoenix-v4-clip-b.mp4                  6.04s  score=0.2045</text>
+<text x="18" y="124" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 3  phoenix-v5-continuity-preview.mp4      9.00s  score=0.1841</text>
+<text x="18" y="146" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 4  phoenix-v5-clip-b-continuous.mp4       6.04s  score=0.1702</text>
+<text x="18" y="168" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 5  phoenix-birth-to-rain-preview.mp4      5.00s  score=0.1187</text>
+<text x="18" y="190" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 6  grok-phoenix-birth-source.mp4          6.04s  score=0.0924</text>
+<text x="18" y="212" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 7  phoenix-v5-launch-up.mp4               6.04s  score=0.0887</text>
+<text x="18" y="234" fill="#d0d0d0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13"> 8  phoenix-v4-awakening-preview.mp4       5.00s  score=0.0851</text>
+</svg>

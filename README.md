@@ -88,6 +88,16 @@ export BINQUERY_INDEX=./my-box
 
 ## 例子
 
+本機 10 條自有預覽（不是約 500 條真 bin，不是 CI lavfi）。`doctor` 0 之後：
+
+```
+./binquery query --index "$BINQUERY_INDEX" "wide dark water rain" --limit 8
+```
+
+分數是短名單，不是過關。人還是要看。
+
+![binquery shortlist from 10 local self-made clips](docs/shortlist-phoenix-preview.svg)
+
 ```
 export BINQUERY_INDEX=./my-box
 ./binquery index --input ./my-videos --index "$BINQUERY_INDEX"
