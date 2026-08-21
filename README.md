@@ -1,44 +1,48 @@
-# binquery v0
+# binquery
 
-剪輯助理的痛是盒很大：幾百條片子，一句意圖要立刻拿到 8–15 條短名單，而不是把整庫翻一遍。
+Search large local footage folders with one editing intent. No uploads, no cloud vision API.
 
-本機 CLI。對自己的影片資料夾建盒，再用一句意圖撈短名單 JSON（path、score、gate、reasons）。不是瀏覽器、不是自動成片。查詢只編碼句子，不重抽幀、不重算整庫。建盒用本機 ffmpeg + 本機 OpenCLIP。
+本機 CLI。一句剪輯意圖 → 8–15 條短名單（`path` / `score` / `gate` / `reasons`）。不是自動剪輯，不是 Premiere，不是 highlight。人還是要看。
 
-## 安裝
+## Install
+
+Not on PyPI. Clone, then:
 
 ```
+git clone https://github.com/jennifferweslowski-design/binquery
+cd binquery
 python3 -m venv .venv
 .venv/bin/pip install -e .
 ```
 
-也可以 `pip install -r requirements.txt` 再跑 `./binquery`。
+Needs `ffmpeg` and `ffprobe` on PATH.
 
-還要本機有 `ffmpeg` / `ffprobe`。
+## Try it
 
-CPU。模型是 OpenCLIP ViT-B-32 / `laion2b_s34b_b79k`。權重快取：
+Your own folder, or one long take. Nothing from this repo.
 
-- `$BINQUERY_CLIP_CACHE`，或
-- `~/.cache/binquery/open_clip`
+```
+export BINQUERY_INDEX=./my-box
+./binquery split --input ./long.mp4 --out ./split-out --seconds 8   # optional
+./binquery index --input ./split-out --index "$BINQUERY_INDEX"      # or ./my-videos
+./binquery doctor --index "$BINQUERY_INDEX"
+./binquery query --index "$BINQUERY_INDEX" "worker and a vehicle in the same frame"
+```
 
-第一次跑可能把權重下載進這個快取（本機檔，不是查詢 API）。之後可設 `BINQUERY_OFFLINE=1`。
+`doctor` prints `MISS` → stop. Query encodes the sentence only. First `index` may download OpenCLIP weights into a local cache (`~/.cache/binquery/open_clip`). That is not a query API.
 
-Python 順序：`$BINQUERY_PYTHON` → `./.venv/bin/python` → `python3`。
-
-## Agent Skill
-
-給 agent 用：一句剪輯意圖 → 本機短名單。裝這個倉庫的 Skill：
+Agent skill (instructions only, does not install the CLI):
 
 ```
 npx -y skills add jennifferweslowski-design/binquery
 ```
 
-或把 `skills/binquery/` 拷進專案的 `.agents/skills/binquery` 或 `.claude/skills/binquery`（夾裡要有 `SKILL.md`）。
+## Hard limits
 
-這只裝給 agent 的說明，不會裝 Python 套件。CLI 仍要 clone 後 `pip install -e .`。不在 PyPI，不要寫 `pip install binquery`。
-
-場次很多、或預告要從自己的 rushes／dailies 找鏡頭：Skill 裡有未對上凍結句的示例意圖（一場一句，或一句預告意圖）。`query` 回 8–15 條短名單；查詢順序當作用戶的場次記憶。不是 Premiere、不是自動成片、沒有對真 bin 跑過。
-
-一條長錄影要拆成可發的 clips：先 `split` 成資料夾（本機 ffmpeg 時間格，切在 keyframe），再 `index` 那個資料夾 → `doctor` → 一句「哪種 clip」查短名單。這是 **this kind of ask**（r/NewTubers, 2026-08-17: [How do small streamers handle clipping workflows](https://www.reddit.com/r/NewTubers/comments/1vqdvah/how_do_small_streamers_handle_clipping_workflows/)），不是 highlight 偵測、不是依靜音切、不是 YouTube/TikTok 自動 clip，也沒有對真實況跑過。演示要用戶自己的長片。
+- Do not invent stars, downloads, user counts, or "validated at scale".
+- Do not claim a ~500-clip real-bin run.
+- Do not write `pip install binquery`.
+- Keep existing honesty: not auto-edit, lavfi CI is mechanical, demo needs the user's own folder.
 
 ## 用法
 
@@ -140,3 +144,19 @@ ffmpeg -f lavfi -i testsrc=duration=30:size=320x240:rate=25 \
 常見結果是 3 個檔、各約 10s（`-c copy` 切在 keyframe）。然後可 `index` 那個資料夾再 `doctor`。
 
 怎麼提 issue／PR 見 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## Agent Skill
+
+給 agent 用：一句剪輯意圖 → 本機短名單。裝這個倉庫的 Skill：
+
+```
+npx -y skills add jennifferweslowski-design/binquery
+```
+
+或把 `skills/binquery/` 拷進專案的 `.agents/skills/binquery` 或 `.claude/skills/binquery`（夾裡要有 `SKILL.md`）。
+
+這只裝給 agent 的說明，不會裝 Python 套件。CLI 仍要 clone 後 `pip install -e .`。不在 PyPI，不要寫 `pip install binquery`。
+
+場次很多、或預告要從自己的 rushes／dailies 找鏡頭：Skill 裡有未對上凍結句的示例意圖（一場一句，或一句預告意圖）。`query` 回 8–15 條短名單；查詢順序當作用戶的場次記憶。不是 Premiere、不是自動成片、沒有對真 bin 跑過。
+
+一條長錄影要拆成可發的 clips：先 `split` 成資料夾（本機 ffmpeg 時間格，切在 keyframe），再 `index` 那個資料夾 → `doctor` → 一句「哪種 clip」查短名單。這是 **this kind of ask**（r/NewTubers, 2026-08-17: [How do small streamers handle clipping workflows](https://www.reddit.com/r/NewTubers/comments/1vqdvah/how_do_small_streamers_handle_clipping_workflows/)），不是 highlight 偵測、不是依靜音切、不是 YouTube/TikTok 自動 clip，也沒有對真實況跑過。演示要用戶自己的長片。
