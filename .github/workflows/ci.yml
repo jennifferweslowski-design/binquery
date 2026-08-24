@@ -24,8 +24,11 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          pip install -e .
+          pip install -e ".[test]"
           pip install --force-reinstall --no-deps torchvision --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Unit tests
+        run: python -m pytest -q
 
       - name: lavfi split then index then doctor
         env:
@@ -49,3 +52,34 @@ jobs:
           fi
           binquery index --input "$SPLIT" --index "$BOX"
           binquery doctor --index "$BOX"
+          OUT="$BOX/query_smoke.json"
+          binquery query --index "$BOX" "color test pattern" --out "$OUT"
+          python - "$OUT" "$BOX/index/clip.json" <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          doc = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+          clip = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
+          assert isinstance(doc, dict), "top level is not an object"
+          assert "results" in doc, "missing 'results' key"
+          results = doc["results"]
+          assert isinstance(results, list), "'results' is not a list"
+          assert results, "pictorial query returned no results"
+          expected = {
+              "path",
+              "score",
+              "gate",
+              "reasons",
+              "clip_score",
+              "duration_sec",
+              "best_frame",
+              "best_time_sec",
+              "duration_bonus",
+          }
+          assert all(expected <= set(row) for row in results), "result fields are incomplete"
+          indexed = {row["filename"] for row in clip.get("frames", [])}
+          assert all(row["path"] in indexed for row in results), "result path is not in index"
+          scores = [row["score"] for row in results]
+          assert scores == sorted(scores, reverse=True), "not ordered by score descending"
+          PY
