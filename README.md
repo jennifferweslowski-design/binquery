@@ -11,7 +11,7 @@ Not on PyPI: install from source (see 安裝 below). Docs are in Traditional Chi
 
 短名單長這樣（本機 10 條自有預覽）：
 
-![binquery shortlist from 10 local self-made clips](docs/shortlist-phoenix-preview.svg)
+![binquery shortlist from 10 local self-made clips](https://raw.githubusercontent.com/jennifferweslowski-design/binquery/main/docs/shortlist-phoenix-preview.svg)
 
 主要欄位包括：
 
@@ -130,7 +130,7 @@ export BINQUERY_INDEX=./my-box
 ./binquery query --index "$BINQUERY_INDEX" "工人與車" --limit 12
 ```
 
-凍結分數見 [test-run.md](test-run.md)（相對檔名，不含素材）。
+凍結分數見 [test-run.md](https://github.com/jennifferweslowski-design/binquery/blob/main/test-run.md)（相對檔名，不含素材）。
 
 未對上凍結句的場次名／預告意圖／clip 意圖也可以直接丟給 `query`，走 pictorial：
 
@@ -167,7 +167,7 @@ agent 的行為約束寫在 `skills/binquery/SKILL.md`。使用時遵守上方�
 
 ## CI
 
-推 `main` 或開 PR 時，[ci](.github/workflows/ci.yml) 先跑 query 單元測試，再在官方 runner 上用 lavfi 自製 30s 測試圖案，`split` 成至少 2 段，接著跑 `index` → `doctor` → `query` 煙霧測試。素材和 index 只活在 runner，不進倉庫。
+推 `main` 或開 PR 時，[ci](https://github.com/jennifferweslowski-design/binquery/blob/main/.github/workflows/ci.yml) 先跑 query 單元測試，再在官方 runner 上用 lavfi 自製 30s 測試圖案，`split` 成至少 2 段，接著跑 `index` → `doctor` → `query` 煙霧測試。素材和 index 只活在 runner，不進倉庫。
 
 本機也可先用 lavfi 試 `split`：
 
@@ -180,4 +180,4 @@ ffmpeg -f lavfi -i testsrc=duration=30:size=320x240:rate=25 \
 
 常見結果是 3 個檔、各約 10s（`-c copy` 切在 keyframe）。然後可 `index` 那個資料夾再 `doctor`。
 
-怎麼提 issue／PR 見 [CONTRIBUTING.md](CONTRIBUTING.md)。
+怎麼提 issue／PR 見 [CONTRIBUTING.md](https://github.com/jennifferweslowski-design/binquery/blob/main/CONTRIBUTING.md)。
