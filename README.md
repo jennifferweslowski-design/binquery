@@ -1,4 +1,4 @@
-# binquery v0
+# binquery v0.1.0
 
 剪輯助理的痛是盒很大：幾百條片子，一句意圖要立刻拿到 8–15 條短名單，而不是把整庫翻一遍。
 
@@ -62,7 +62,7 @@ export BINQUERY_INDEX=./my-box
 
 多場次就一場一句 `query`，查詢順序留給用戶當場次記憶（盒不會從檔案還原 Premiere 順序）。預告從 rushes 找鏡頭：對自己的 rushes 資料夾 `index`，再丟一句預告意圖。都不是貼進時間軸、也不是自動剪預告。
 
-`doctor` 只檢查檔在不在、能不能讀。缺必備 index 就列檔名、exit 2，不假裝能查、不解包。真演示要本機長片先 `split` 再 index 成盒，或本機影片資料夾先 index 成盒（`BINQUERY_INDEX`）。CI 的 lavfi 30s → `split` 幾段再 `index` → `doctor` 只是機械檢查，不是實況 clipping 演示，也不是 rushes／場次序列演示。沒有對過約 500 條真 bin，也沒對真實況跑過。沒長片、沒盒就說：需要本機長片或影片資料夾先 index 成盒，才能演示。不要假裝對過真 bin。
+`doctor` 只檢查檔在不在、能不能讀。缺必備 index 就列檔名、exit 2，不假裝能查、不解包。真演示要本機長片先 `split` 再 index 成盒，或本機影片資料夾先 index 成盒（`BINQUERY_INDEX`）。CI 的 lavfi 30s → `split` 幾段再 `index` → `doctor` → `query` 只是機械煙霧測試，不是實況 clipping 演示，也不是 rushes／場次序列演示。沒有對過約 500 條真 bin，也沒對真實況跑過。沒長片、沒盒就說：需要本機長片或影片資料夾先 index 成盒，才能演示。不要假裝對過真 bin。
 
 ## 自備盒
 
@@ -80,11 +80,11 @@ export BINQUERY_INDEX=./my-box
 - `index/clip_vectors.npy`
 - `index/mechanical.json`
 - `index/empty_hard.json`（`person_clip`：每條 max(cos 人 − cos 空)，空鏡 gate 直接讀。不必自己加 json。）
-- `index/motion.json`（`motion_label`：lock／pan／handheld／moving；coarse 三幀幀差＋phaseCorrelate。查詢讀這份，不必自己加。）
+- `index/motion.json`（包含 coarse 三幀幀差＋phaseCorrelate 產生的 `motion_label`：lock／pan／handheld／moving，以及複製的 `person_clip`。目前查詢只讀其中的 `person_clip`，不依 `motion_label` 排名或篩選。）
 
 3. 先 `doctor`，再 `query`。MISS 就停。
-4. pictorial 不需要 person。空鏡 gate 用 `person_clip`。鏡頭運動用 `motion_label`（lock／pan／handheld）。
-5. `.mov`、幀、向量留在盒裡。本倉庫只放程式和說明。`.gitignore` 已擋 `__pycache__`、`.venv`、`*.npy`、`*.mov`、`index/`。
+4. pictorial 不需要 person。空鏡 gate 用 `person_clip`。`motion_label` 目前只是索引 metadata，不是查詢條件。
+5. 影片、幀、向量留在盒裡。本倉庫只放程式和說明。`.gitignore` 已擋 `.DS_Store`、Python 快取與虛擬環境、`*.npy`、支援的影片格式、`index/`。
 
 ## 例子
 
@@ -126,7 +126,7 @@ export BINQUERY_INDEX=./my-box
 
 ## CI
 
-推 `main` 或開 PR 時，[ci](.github/workflows/ci.yml) 在官方 runner 上 lavfi 自製 30s 測試圖案，`split` 成至少 2 段，再對那些段跑 `index` → `doctor`。素材和 index 只活在 runner，不進倉庫。那不是實況 clipping 演示，也不是 rushes／場次序列演示；真演示要用戶自己的長片或本機影片資料夾先建盒。
+推 `main` 或開 PR 時，[ci](.github/workflows/ci.yml) 先跑 query 單元測試，再在官方 runner 上用 lavfi 自製 30s 測試圖案，`split` 成至少 2 段，接著跑 `index` → `doctor` → `query` 煙霧測試。素材和 index 只活在 runner，不進倉庫。那不是實況 clipping 演示，也不是 rushes／場次序列演示；真演示要用戶自己的長片或本機影片資料夾先建盒。
 
 本機也可先用 lavfi 試 `split`（不是實況）：
 
