@@ -9,8 +9,8 @@ from typing import Any
 
 import numpy as np
 
-from clip_local import DEVICE, MODEL_NAME, PRETRAINED, LocalCLIP, load_index
-from intents import resolve_query
+from .clip_local import DEVICE, MODEL_NAME, PRETRAINED, LocalCLIP, load_index
+from .intents import resolve_query
 
 TZ8 = timezone(timedelta(hours=8))
 

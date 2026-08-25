@@ -14,8 +14,8 @@ from typing import Any
 
 import numpy as np
 
-from clip_local import DEVICE, MODEL_NAME, PRETRAINED, LocalCLIP
-from motion_local import clip_motion_row
+from .clip_local import DEVICE, MODEL_NAME, PRETRAINED, LocalCLIP
+from .motion_local import clip_motion_row
 
 TZ8 = timezone(timedelta(hours=8))
 VIDEO_EXT = {".mov", ".mp4", ".mkv", ".m4v", ".avi", ".webm"}

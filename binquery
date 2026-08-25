@@ -17,4 +17,11 @@ if [ "${BINQUERY_OFFLINE:-}" = "1" ]; then
   export TRANSFORMERS_OFFLINE=1
 fi
 
-exec "$PY" "$ROOT/binquery.py" "$@"
+export PYTHONSAFEPATH=1
+if [ -n "${PYTHONPATH:-}" ]; then
+  export PYTHONPATH="$ROOT/src:$PYTHONPATH"
+else
+  export PYTHONPATH="$ROOT/src"
+fi
+
+exec "$PY" -m binquery "$@"

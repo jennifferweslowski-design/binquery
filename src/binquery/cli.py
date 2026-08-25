@@ -6,12 +6,8 @@ import argparse
 import sys
 from pathlib import Path
 
-_SRC = Path(__file__).resolve().parent
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
-
-from intents import SPECS  # noqa: E402
-from split_local import (  # noqa: E402
+from .intents import SPECS
+from .split_local import (
     SECONDS_DEFAULT,
     SplitError,
     default_out_dir,
@@ -47,7 +43,7 @@ def cmd_split(args: argparse.Namespace) -> int:
 
 
 def cmd_index(args: argparse.Namespace) -> int:
-    from index_box import IndexError_, run_index
+    from .index_box import IndexError_, run_index
 
     try:
         report = run_index(Path(args.input).expanduser(), Path(args.index).expanduser())
@@ -64,7 +60,7 @@ def cmd_index(args: argparse.Namespace) -> int:
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
-    from query import doctor_index, print_doctor
+    from .query import doctor_index, print_doctor
 
     report = doctor_index(Path(args.index).expanduser())
     print_doctor(report)
@@ -72,7 +68,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
 
 def cmd_query(args: argparse.Namespace) -> int:
-    from query import MissingIndex, dump_json, print_table, run_query
+    from .query import MissingIndex, dump_json, print_table, run_query
 
     box = Path(args.index).expanduser()
     try:

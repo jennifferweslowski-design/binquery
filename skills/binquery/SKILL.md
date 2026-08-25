@@ -94,7 +94,7 @@ export BINQUERY_INDEX=./my-box
 ./binquery query --index "$BINQUERY_INDEX" "工人與車" --limit 12
 ```
 
-Unknown sentences still run as unmatched pictorial (`resolve_query`). Do not rewrite the frozen Chinese director lines in `src/intents.py`. Do not add SPECS.
+Unknown sentences still run as unmatched pictorial (`resolve_query`). Do not rewrite the frozen Chinese director lines in `src/binquery/intents.py`. Do not add SPECS.
 
 ## Example intents
 

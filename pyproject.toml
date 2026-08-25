@@ -23,11 +23,14 @@ dependencies = [
 test = ["pytest>=8"]
 
 [project.scripts]
-binquery = "cli:main"
+binquery = "binquery.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/jennifferweslowski-design/binquery"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-py-modules = ["cli", "clip_local", "index_box", "intents", "motion_local", "query", "split_local"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["binquery*"]

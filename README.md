@@ -85,7 +85,7 @@ export BINQUERY_INDEX=./my-box
 
 `index --input` 是你自己的影片資料夾（split 出來的夾，或本來就有的夾）。`index --index` 要給**盒根**，程式會在底下建立並寫入 `index/`。
 
-`query` 用一句 pictorial 意圖回短名單。`--limit` 預設 12，夾在 8–15：傳小於 8 當 8、大於 15 當 15；候選不足時結果可以少於 8。`--out` 會把結果寫成 JSON 檔。未對上凍結導演句也當 pictorial 跑，不必改 `src/intents.py`。
+`query` 用一句 pictorial 意圖回短名單。`--limit` 預設 12，夾在 8–15：傳小於 8 當 8、大於 15 當 15；候選不足時結果可以少於 8。`--out` 會把結果寫成 JSON 檔。未對上凍結導演句也當 pictorial 跑，不必改 `src/binquery/intents.py`。
 
 對已存在的路徑，`query --index` 與 `doctor --index` 會優先使用底下的 `index/`；若沒有該子目錄，就把給定路徑本身視為 index 目錄。
 

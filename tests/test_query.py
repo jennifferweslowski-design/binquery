@@ -6,8 +6,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from cli import main as cli_main
-from query import MissingIndex, doctor_index, run_query
+from binquery.cli import main as cli_main
+from binquery.query import MissingIndex, doctor_index, run_query
 
 
 class FakeModel:
