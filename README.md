@@ -1,4 +1,4 @@
-# binquery v0.2.0
+# binquery v0.3.0
 
 **Describe a shot in one sentence; get back a ranked shortlist of clips from your own
 footage folder.** Local CLI, local ffmpeg, local OpenCLIP ViT-B-32. Search shortlists
@@ -68,6 +68,25 @@ CPU。模型是 OpenCLIP ViT-B-32 / `laion2b_s34b_b79k`。權重快取：
 第一次跑可能把權重下載進這個快取（本機檔，不是查詢 API）。之後可設 `BINQUERY_OFFLINE=1`。
 
 Python 順序：`$BINQUERY_PYTHON` → `./.venv/bin/python` → `python3`。
+
+## 零素材 demo
+
+不用準備影片。下面這一條命令會用 ffmpeg `lavfi` 生成一條本機合成測試片，
+再完整執行 `split → index → doctor → query`：
+
+```
+binquery demo --out /tmp/binquery-demo
+```
+
+結果留在 `/tmp/binquery-demo/`：
+
+- `synthetic-long.mp4` — 生成的 30 秒測試片
+- `clips/` — time-grid split 結果
+- `box/index/` — 本機 OpenCLIP index
+- `query.json` — `color test pattern` 的排序短名單
+
+`--out` 必須是新目錄或空目錄，既有內容不會被覆寫。第一次執行仍可能下載
+OpenCLIP 權重。這個 demo 只證明完整流程能跑，不是語意品質基準。
 
 ## 用法
 
