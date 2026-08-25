@@ -3,7 +3,8 @@
 **Describe a shot in one sentence; get back a ranked shortlist of clips from your own
 footage folder.** Local CLI, local ffmpeg, local OpenCLIP ViT-B-32. Search shortlists
 candidates for review. It does not assemble a timeline or export a finished edit.
-Not on PyPI: install from source (see 安裝 below). Docs are in Traditional Chinese.
+Install from PyPI with `pip install binquery`, or from source (see 安裝 below).
+Docs are in Traditional Chinese.
 
 剪輯助理的痛是素材盒很大：想用一句意圖先縮成可看的排序短名單，而不是把整庫翻一遍。
 
@@ -49,12 +50,13 @@ Not on PyPI: install from source (see 安裝 below). Docs are in Traditional Chi
 
 ```
 python3 -m venv .venv
-.venv/bin/pip install -e .
+.venv/bin/pip install binquery
 ```
 
+開發或從原始碼執行時，clone 本倉庫後改用 `.venv/bin/pip install -e .`。
 也可以 `pip install -r requirements.txt` 再跑 `./binquery`。
 
-不在 PyPI，不要寫 `pip install binquery`。
+PyPI 套件名是 `binquery`。
 
 還要本機有 `ffmpeg` / `ffprobe`。
 
@@ -155,7 +157,7 @@ npx -y skills add jennifferweslowski-design/binquery
 
 或把 `skills/binquery/` 拷進專案的 `.agents/skills/binquery` 或 `.claude/skills/binquery`（夾裡要有 `SKILL.md`）。
 
-這只裝給 agent 的說明，不會裝 Python 套件。CLI 仍要 clone 後 `pip install -e .`。
+這只裝給 agent 的說明，不會裝 Python 套件。CLI 仍要另外執行 `pip install binquery`。
 
 場次很多、或預告要從自己的 rushes／dailies 找鏡頭：Skill 裡有未對上凍結句的示例意圖（一場一句，或一句預告意圖）。
 

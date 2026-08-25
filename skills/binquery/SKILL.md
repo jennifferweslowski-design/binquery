@@ -1,8 +1,8 @@
 ---
 name: binquery
-description: Local Python CLI that can time-grid split one long local video into a folder, index that folder, then answer one editing-intent sentence with an 8–15 clip shortlist (path, score, gate, reasons). Use when the user wants a local footage shortlist from an edit intent, has one long recording to break into clips, or asks to run binquery split, index, doctor, query, or list. Split is ffmpeg segment, not highlight detection. Query encodes only the sentence. Not a browser, not an auto-editor, not a cloud vision API, not on PyPI.
+description: Local Python CLI that can time-grid split one long local video into a folder, index that folder, then answer one editing-intent sentence with an 8–15 clip shortlist (path, score, gate, reasons). Use when the user wants a local footage shortlist from an edit intent, has one long recording to break into clips, or asks to run binquery split, index, doctor, query, or list. Split is ffmpeg segment, not highlight detection. Query encodes only the sentence. Not a browser, not an auto-editor, not a cloud vision API.
 license: MIT
-compatibility: Local machine with Python 3.10+, ffmpeg, ffprobe, and OpenCLIP. Install by cloning this repo and running pip install -e . — not on PyPI.
+compatibility: Local machine with Python 3.10+, ffmpeg, ffprobe, and OpenCLIP. Install with pip install binquery.
 ---
 
 # binquery
@@ -28,24 +28,22 @@ Do not use this skill to:
 - detect highlights, cut on silence, or auto-clip for YouTube/TikTok
 - call a cloud vision / video API
 - re-extract frames or re-embed the library on query
-- install from PyPI (`pip install binquery` is wrong)
 
-## Install the CLI (not PyPI)
+## Install the CLI
 
-binquery is **not on PyPI**. Do not write `pip install binquery`.
-
-Clone this repo, then editable-install:
+Install from PyPI:
 
 ```
 python3 -m venv .venv
-.venv/bin/pip install -e .
+.venv/bin/pip install binquery
 ```
 
-Or `pip install -r requirements.txt` and run `./binquery` from the clone.
+For development, clone this repo and use `.venv/bin/pip install -e .`. Or run
+`pip install -r requirements.txt` and use `./binquery` from the clone.
 
 Also required on PATH: `ffmpeg` and `ffprobe`.
 
-After `pip install -e .`, the command is `binquery`. From the clone without installing the script, use `./binquery`. Same subcommands either way.
+After installation, the command is `binquery`. From the clone without installing the script, use `./binquery`. Same subcommands either way.
 
 Python lookup for `./binquery`: `$BINQUERY_PYTHON` → `./.venv/bin/python` → `python3`.
 
