@@ -1,4 +1,4 @@
-# binquery v0.1.0
+# binquery v0.2.0
 
 **Describe a shot in one sentence; get back a ranked shortlist of clips from your own
 footage folder.** Local CLI, local ffmpeg, local OpenCLIP ViT-B-32. Search shortlists
