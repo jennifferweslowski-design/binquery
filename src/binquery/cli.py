@@ -90,6 +90,30 @@ def cmd_query(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_demo(args: argparse.Namespace) -> int:
+    from .demo_local import DemoError, run_demo
+    from .query import print_doctor, print_table
+
+    try:
+        report = run_demo(
+            Path(args.out).expanduser(),
+            intent=args.intent,
+            limit=args.limit,
+        )
+    except DemoError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    print(
+        f"generated and split {report['split']['clip_count']} synthetic clips; "
+        f"indexed {report['index']['frame_count']} stills"
+    )
+    print_doctor(report["doctor"])
+    print_table(report["query"])
+    print(f"wrote {report['query_path']}", file=sys.stderr)
+    print(f"demo complete -> {report['root']}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="binquery",
@@ -141,6 +165,23 @@ def build_parser() -> argparse.ArgumentParser:
     ix.add_argument("--input", required=True, help="folder of videos (mov/mp4/mkv/...)")
     ix.add_argument("--index", required=True, help="box root to write index/ into")
     ix.set_defaults(func=cmd_index)
+
+    dm = sub.add_parser(
+        "demo",
+        help="generate synthetic footage and run split/index/doctor/query locally",
+    )
+    dm.add_argument(
+        "--out",
+        required=True,
+        help="new or empty directory for all generated demo files",
+    )
+    dm.add_argument(
+        "--intent",
+        default="color test pattern",
+        help="query text (default: color test pattern)",
+    )
+    dm.add_argument("--limit", type=int, default=8, help="clamped 8-15, default 8")
+    dm.set_defaults(func=cmd_demo)
     return p
 
 

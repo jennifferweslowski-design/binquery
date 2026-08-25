@@ -30,31 +30,14 @@ jobs:
       - name: Unit tests
         run: python -m pytest -q
 
-      - name: lavfi split then index then doctor
+      - name: No-footage demo smoke
         env:
           BINQUERY_CLIP_CACHE: ${{ runner.temp }}/clip-cache
         run: |
           set -euo pipefail
-          LONG="${RUNNER_TEMP}/bq-long/long.mp4"
-          SPLIT="${RUNNER_TEMP}/bq-split"
-          BOX="${RUNNER_TEMP}/bq-box"
-          mkdir -p "$(dirname "$LONG")"
-          ffmpeg -y -hide_banner -loglevel error \
-            -f lavfi -i testsrc=duration=30:size=320x240:rate=25 \
-            -f lavfi -i sine=frequency=440:duration=30 \
-            -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest \
-            "$LONG"
-          binquery split --input "$LONG" --out "$SPLIT" --seconds 8
-          n="$(find "$SPLIT" -maxdepth 1 -type f | wc -l)"
-          if [ "$n" -lt 2 ]; then
-            echo "expected >=2 split outputs, got $n" >&2
-            exit 1
-          fi
-          binquery index --input "$SPLIT" --index "$BOX"
-          binquery doctor --index "$BOX"
-          OUT="$BOX/query_smoke.json"
-          binquery query --index "$BOX" "color test pattern" --out "$OUT"
-          python - "$OUT" "$BOX/index/clip.json" <<'PY'
+          DEMO="${RUNNER_TEMP}/binquery-demo"
+          binquery demo --out "$DEMO"
+          python - "$DEMO/query.json" "$DEMO/box/index/clip.json" <<'PY'
           import json
           import pathlib
           import sys
