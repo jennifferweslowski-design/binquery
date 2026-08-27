@@ -1,96 +1,122 @@
-# binquery real-footage pilot
+# Test binquery on real footage
 
-Prepared on 2026-08-27. This is an outreach and evidence-collection plan, not a
-claim that search quality has already been validated on real editing projects.
+binquery is an early, MIT-licensed command-line tool that builds a local
+OpenCLIP index of a video folder and returns a ranked shortlist for a sentence
+query. It does not edit footage or export a finished cut.
 
-## Goal
+We are looking for three editors or video makers to try version 0.3.0 and report
+the honest result—including installation failures and irrelevant rankings. This
+is a small usability pilot, not a request for stars, votes, testimonials, or
+private footage.
 
-Recruit three independent editors or video makers to install the published
-package, run the synthetic demo, and then try one sentence query against a small
-folder of their own non-client footage.
+## What you need
 
-The useful outcome is not a star. It is a reproducible installation report, a
-documented limitation, or a public issue that leads to a verified maintenance
-action.
+- Python 3.10 or newer;
+- `ffmpeg` available on `PATH`;
+- 20–100 short, non-client video clips that you are allowed to process locally;
+- enough time for the synthetic demo and for indexing your clips.
 
-## Who counts as a pilot participant
+The first run may download OpenCLIP model weights. Video processing, indexing,
+and inference then run locally.
 
-- They are not the repository owner and did not work on binquery.
-- They install the public PyPI release in their own environment.
-- They run `binquery demo` before using their own footage.
-- They test a small folder they are allowed to process locally.
-- They report what happened, including failures or irrelevant rankings.
+## 1. Install in a clean environment
 
-Friends can participate, but they must report their real result. Do not ask for a
-star, vote, testimonial, or positive wording.
-
-## Direct invitation
-
-### English
-
-> I maintain an early open-source CLI called binquery. It builds a local index of
-> a video folder and returns a ranked clip shortlist for a sentence query. It does
-> not edit the footage. Processing runs locally; the first run may download model
-> weights.
->
-> I am looking for three people willing to test the published package on a small
-> folder of non-client footage and tell me where it fails. Please run the synthetic
-> demo first, then try one real query. I need the honest result, including bad
-> rankings or installation errors; I am not asking for a star or endorsement.
->
-> GitHub: https://github.com/jennifferweslowski-design/binquery
->
-> PyPI: https://pypi.org/project/binquery/0.3.0/
-
-### 繁體中文
-
-> 我在維護一個早期開源 CLI：binquery。它會在本機替影片資料夾建立索引，
-> 再依一句描述回傳排序後的候選短名單；它不剪輯。處理在本機執行，首次
-> 使用可能下載模型權重。
->
-> 我想找 3 位願意實測的人：先跑合成素材 demo，再用一小份可以自行處理、
-> 不含客戶機密的素材測一個真實查詢。我要的是誠實結果，包括安裝失敗、
-> 排名不準或根本不適合你的工作流；不需要幫忙按星或寫好評。
->
-> GitHub: https://github.com/jennifferweslowski-design/binquery
->
-> PyPI: https://pypi.org/project/binquery/0.3.0/
-
-## Participant steps
-
-Use a clean virtual environment:
+macOS or Linux:
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install binquery==0.3.0
+.venv/bin/binquery --help
+```
+
+Windows PowerShell:
+
+```powershell
+py -m venv .venv
+.venv\Scripts\python -m pip install binquery==0.3.0
+.venv\Scripts\binquery --help
+```
+
+If installation fails, stop there and use the report template below. The
+failure is useful pilot evidence.
+
+## 2. Run the synthetic demo
+
+macOS or Linux:
+
+```bash
 .venv/bin/binquery demo --out /tmp/binquery-demo
 ```
 
-If the demo succeeds, follow the README to index a small local video folder and run
-one query that reflects a shot the participant actually remembers. The first run
-may download OpenCLIP model weights.
+Windows PowerShell:
 
-## What to report
+```powershell
+.venv\Scripts\binquery demo --out "$env:TEMP\binquery-demo"
+```
 
-Do not request footage, extracted frames, index files, client names, or private
-paths. Ask for only:
+The output directory must be new or empty. The demo generates synthetic clips
+and runs `split → index → doctor → query`; it checks that the full pipeline runs,
+not that semantic ranking is good.
 
-- operating system and version;
-- Python and ffmpeg versions;
-- whether installation and the synthetic demo completed;
-- a sanitized version of the real query;
-- approximate candidate-pool size;
-- whether any useful candidate appeared in the returned shortlist;
-- exact error text for a failure, with private paths and names removed;
-- permission before quoting or publicly attributing any feedback.
+## 3. Try one query on your own clips
 
-Convert reproducible defects into GitHub issues. Keep private feedback private
-unless the participant explicitly agrees otherwise.
+Choose a small folder containing 20–100 short clips. Do not use client-confidential
+material. Replace the example paths and query with your own:
 
-## Evidence log
+macOS or Linux:
 
-Record one row per participant. Use an anonymous identifier unless attribution is
-explicitly permitted.
+```bash
+.venv/bin/binquery index --input ./my-clips --index ./binquery-pilot
+.venv/bin/binquery doctor --index ./binquery-pilot
+.venv/bin/binquery query --index ./binquery-pilot \
+  "wide exterior shot with no people" \
+  --limit 12 \
+  --out ./binquery-pilot/query.json
+```
+
+Windows PowerShell:
+
+```powershell
+.venv\Scripts\binquery index --input .\my-clips --index .\binquery-pilot
+.venv\Scripts\binquery doctor --index .\binquery-pilot
+.venv\Scripts\binquery query --index .\binquery-pilot `
+  "wide exterior shot with no people" `
+  --limit 12 `
+  --out .\binquery-pilot\query.json
+```
+
+Use a query for a shot you genuinely remember. Open the returned candidates and
+judge them yourself. A bad shortlist is a valid and useful result.
+
+## 4. Report the result
+
+Copy this template into a GitHub issue or send it to the person who invited you:
+
+```text
+OS and version:
+Python version:
+ffmpeg version:
+Install: PASS / FAIL
+Synthetic demo: PASS / FAIL / NOT RUN
+Approximate number of real clips:
+Sanitized query:
+Did any useful candidate appear? YES / NO / QUERY FAILED
+Exact error text, with private paths and names removed:
+One thing that was confusing:
+```
+
+Please do **not** send footage, extracted frames, index files, client names,
+private paths, or screenshots containing confidential material. Do not publish
+another person's feedback or identity without their permission.
+
+GitHub: https://github.com/jennifferweslowski-design/binquery
+
+PyPI: https://pypi.org/project/binquery/0.3.0/
+
+## Maintainer evidence log
+
+This section is for the maintainer, not a requirement for participants. Use an
+anonymous identifier unless attribution is explicitly permitted.
 
 | ID | Date | Environment | Demo | Real query | Useful candidate | Action | Public evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -98,13 +124,11 @@ explicitly permitted.
 | P2 | | | | | | | |
 | P3 | | | | | | | |
 
-Valid actions include: documented installation guidance, opened issue, verified
-fix, regression test, or release. A private message by itself is not public proof;
-the maintenance action it causes can be.
+Valid actions include improved installation guidance, a reproducible issue, a
+verified fix, a regression test, or a release. A private message is not public
+maintenance evidence by itself; the documented action it causes can be.
 
-## Completion rule
-
-The pilot is complete when three independent environments have been attempted and
-each result is recorded honestly. Success does not require three positive results.
-One reproducible failure that leads to a tested fix is stronger maintenance
-evidence than three compliments.
+The pilot is complete after three independent environments have been attempted
+and recorded honestly. It does not require three positive outcomes. One
+reproducible failure that leads to a tested fix is stronger evidence than three
+compliments.
